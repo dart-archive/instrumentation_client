@@ -22,11 +22,12 @@ class GaeHttpClientChannel extends Channel {
       this.versionID);
 
   void sendData(String data) {
+    int msgN = _counter++;
     HttpClient client = new HttpClient();
     client.postUrl(Uri.parse(serverEP)).then((HttpClientRequest req) {
       var dataPacked = UTF8.encode(
           '["BasicStore2", {"sessionID" : "$sessionID", "msgN" '
-          ': ${_counter++}, "versionID" : "$versionID", "Data" : "$data"}]');
+          ': $msgN, "versionID" : "$versionID", "Data" : "$data"}]');
       req.contentLength = dataPacked.length;
       req.add(dataPacked);
       return req.close();
