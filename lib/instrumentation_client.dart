@@ -77,7 +77,7 @@ class InstrumentationClient {
   }
 
   void shutdown() {
-    _send(sb.toString());
+    if (sb.isNotEmpty) _send(sb.toString());
     _internalShutdown();
   }
 
