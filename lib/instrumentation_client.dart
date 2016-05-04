@@ -12,7 +12,7 @@ import 'src/channels.dart';
 import 'src/io_channels.dart';
 
 final int MAX_UNCOMPRESSED_MESSAGE_SIZE = 450 * 1024;
-final String VERSION_ID = "2016-02-02";
+final String VERSION_ID = "2016-05-04";
 
 class InstrumentationClient {
   Channel channel;
