@@ -25,6 +25,7 @@ class GaeHttpClientChannel extends Channel {
     int msgN = _counter++;
     HttpClient client = new HttpClient();
     client.postUrl(Uri.parse(serverEP)).then((HttpClientRequest req) {
+      req.persistentConnection = false;
       var dataPacked = UTF8.encode(
           '["BasicStore2", {"sessionID" : "$sessionID", "msgN" '
           ': $msgN, "versionID" : "$versionID", "Data" : "$data"}]');
