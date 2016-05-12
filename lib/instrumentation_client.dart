@@ -26,40 +26,20 @@ class InstrumentationClient {
       num packetsPerSecond: 2.0}) {
     if (!serverEndPoint.startsWith("https://") &&
         !serverEndPoint.startsWith("http://localhost")) {
-          throw new ArgumentError("Data must be sent over TLS or to localhost.");
+      throw new ArgumentError("Data must be sent over TLS or to localhost.");
     }
 
-    _sessionID = (new DateTime.now().millisecondsSinceEpoch +
-        new Random().nextDouble()).toString();
+    _sessionID =
+        (new DateTime.now().millisecondsSinceEpoch + new Random().nextDouble())
+            .toString();
 
-    this.channel = new RateLimitingBufferedChannel(
-        new GaeHttpClientChannel(
-            _sessionID, userID, serverEndPoint, VERSION_ID),
-        bufferSizeLimit: bufferSizeLimit,
-        packetsPerSecond: packetsPerSecond);
+    // main channel is unused... don't create it
 
-    this.priorityChannel = new RateLimitingBufferedChannel(
-        new GaeHttpClientChannel(
-            "PRI" + _sessionID, userID, serverEndPoint, VERSION_ID),
-        bufferSizeLimit: bufferSizeLimit,
-        packetsPerSecond: packetsPerSecond);
+    this.priorityChannel = new GaeHttpClientChannel(
+        "PRI" + _sessionID, userID, serverEndPoint, VERSION_ID);
   }
 
-  void log(String s) {
-    sb.write("~");
-    sb.writeln(s);
-    if (sb.length > MAX_UNCOMPRESSED_MESSAGE_SIZE) {
-      String outStr = sb.toString();
-      while (outStr.length > MAX_UNCOMPRESSED_MESSAGE_SIZE) {
-        String first = outStr.substring(0, MAX_UNCOMPRESSED_MESSAGE_SIZE);
-        String second = outStr.substring(MAX_UNCOMPRESSED_MESSAGE_SIZE);
-        _send(first);
-        outStr = second;
-      }
-      sb = new StringBuffer();
-      sb.write(outStr);
-    }
-  }
+  void log(String s) => throw 'not supported - use logWithPriority instead';
 
   /// Log a message via the priority channel. These messages will be
   /// trimmed to MAX_UNCOMPRESSED_MESSAGE_SIZE. Calls to this method
@@ -70,8 +50,8 @@ class InstrumentationClient {
     message.writeln(s);
 
     String outStr = message.toString();
-    if (outStr.length > MAX_UNCOMPRESSED_MESSAGE_SIZE) outStr =
-        outStr.substring(0, MAX_UNCOMPRESSED_MESSAGE_SIZE);
+    if (outStr.length > MAX_UNCOMPRESSED_MESSAGE_SIZE)
+      outStr = outStr.substring(0, MAX_UNCOMPRESSED_MESSAGE_SIZE);
 
     _prioritySend(outStr);
   }
@@ -99,6 +79,5 @@ class InstrumentationClient {
 
   _internalShutdown() {
     priorityChannel.shutdown();
-    channel.shutdown();
   }
 }
